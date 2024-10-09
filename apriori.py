@@ -4,7 +4,6 @@ from itertools import combinations
 
 def apriori():
     if len(sys.argv) != 3:
-        print("Usage: python myapriori.py filename minsup")
         sys.exit(1)
 
     filename = sys.argv[1]
@@ -22,7 +21,6 @@ def apriori():
     N = len(transactions)
     minsup_count = math.ceil(minsup_level * N)
 
-    # Generate frequent 1-itemsets
     item_counts = {}
     for transaction in transactions:
         for item in transaction:
@@ -36,11 +34,9 @@ def apriori():
     freq_itemsets = []
     freq_itemsets.extend(L1)
 
-    # Iteratively generate frequent itemsets
     k = 2
     Lkminus1 = L1
     while Lkminus1:
-        # Generate candidates Ck
         Ck = []
         Lkminus1_list = list(Lkminus1)
         Lkminus1_set = set(Lkminus1)
@@ -52,19 +48,16 @@ def apriori():
                 l2.sort()
                 if l1[:-1] == l2[:-1]:
                     candidate = Lkminus1_list[i] | Lkminus1_list[j]
-                    # Prune candidates whose subsets are not frequent
                     subsets = list(combinations(candidate, k-1))
                     if all(frozenset(subset) in Lkminus1_set for subset in subsets):
                         Ck.append(candidate)
 
-        # Count supports
         candidate_counts = {}
         for transaction in transactions:
             for candidate in Ck:
                 if candidate.issubset(transaction):
                     candidate_counts[candidate] = candidate_counts.get(candidate, 0) + 1
 
-        # Generate Lk
         Lk = []
         for candidate, count in candidate_counts.items():
             if count >= minsup_count:
@@ -74,7 +67,6 @@ def apriori():
         Lkminus1 = Lk
         k += 1
 
-    # Output frequent itemsets
     for itemset in freq_itemsets:
         items = list(itemset)
         items.sort()
